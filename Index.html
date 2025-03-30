@@ -1,0 +1,40 @@
+<script>
+  // Verifica si el navegador soporta la geolocalización
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        // Obtiene las coordenadas
+        var lat = position.coords.latitude;
+        var lng = position.coords.longitude;
+        var coordinates = lat + ", " + lng;
+
+        // Muestra el estado
+        document.getElementById('status').innerText = "Ubicación obtenida: " + coordinates;
+
+        // Llama a la función de Apps Script para guardar la ubicación
+        google.script.run.withSuccessHandler(function(result) {
+          document.getElementById('status').innerText += "\n" + result; // Muestra el resultado en la página
+        }).saveLocationFromWeb(coordinates); // Envía las coordenadas a la función en main.gs
+      },
+      function(error) {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            document.getElementById('status').innerText = "Error: Permiso de ubicación denegado.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            document.getElementById('status').innerText = "Error: La ubicación no está disponible.";
+            break;
+          case error.TIMEOUT:
+            document.getElementById('status').innerText = "Error: La solicitud de geolocalización ha expirado.";
+            break;
+          case error.UNKNOWN_ERROR:
+            document.getElementById('status').innerText = "Error: Se produjo un error desconocido.";
+            break;
+        }
+      }
+    );
+  } else {
+    // Maneja el caso en que la geolocalización no está soportada
+    document.getElementById('status').innerText = "Error: La geolocalización no es soportada por este navegador.";
+  }
+</script>
